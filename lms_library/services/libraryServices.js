@@ -1,7 +1,7 @@
 var bookCopiesDao = require('../dao/bookCopiesDao');
-var libraryBranchDao = require('../dao/libraryBranchDao');
+var libraryBranchDao = require('../dao/libraryBranchesDao');
 
-exports.getBranches(function (req, res) {
+exports.getBranches = (function (req, res) {
     libraryBranchDao.getAllLibraryBranches()
         .then(function (result) {
             res.setHeader('Content-Type', 'application/json');
@@ -12,8 +12,8 @@ exports.getBranches(function (req, res) {
         });
 });
 
-exports.getBranch(bookId, function (req, res) {
-    libraryBranchDao.getLibraryBranchById(bookId)
+exports.getBranchByBranchId = (function(branchId,req, res) {
+    libraryBranchDao.getLibraryBranchById(branchId)
         .then(function (result) {
             res.setHeader('Content-Type', 'application/json');
             res.send(result);
@@ -23,8 +23,9 @@ exports.getBranch(bookId, function (req, res) {
         });
 });
 
-exports.updateBranch(libraryBranch, function (req, res) {
-    libraryBranchDao.updateLibraryBranch(libraryBranch, function (error, result) {
+exports.updateBranch = (function(branchId, branchName, branchAddress, req, res) {
+    console.log(branchAddress);
+    libraryBranchDao.updateLibraryBranch(branchId, branchName, branchAddress, function (error, result) {
         if (error) {
             res.status(400);
             res.send('Update Library Branch Failed!');
@@ -34,8 +35,8 @@ exports.updateBranch(libraryBranch, function (req, res) {
     });
 });
 
-exports.getBookCopies(branchId, function (req, res) {
-    bookCopiesDao.getAllBookCopies(branchId)
+exports.getBookCopies = (function(branchId, req, res) {
+    bookCopiesDao.getBookCopiesByBranchId(branchId)
         .then(function (result) {
             res.setHeader('Content-Type', 'application/json');
             res.send(result);
@@ -45,8 +46,8 @@ exports.getBookCopies(branchId, function (req, res) {
         });
 });
 
-exports.getBookCopy(function (req, res) {
-    bookCopiesDao.getBookCopiesByBranchId()
+exports.getBookCopy = (function(branchId, bookId, req, res) {
+    bookCopiesDao.getBookCopiesById(branchId, bookId)
         .then(function (result) {
             res.setHeader('Content-Type', 'application/json');
             res.send(result);
@@ -56,8 +57,8 @@ exports.getBookCopy(function (req, res) {
         });
 });
 
-exports.updateBookCopyCount(function (req, res) {
-    bookCopiesDao.updateNoOfBookCopies(bookCopy, function (error, result) {
+exports.updateBookCopyCount = (function(req, res) {
+    bookCopiesDao.updateNoOfBookCopies(bookCopy, branchId, bookId, function (error, result) {
         if (error) {
             res.status(400);
             res.send('Update nunber of Book Copies Failed!');
