@@ -24,7 +24,7 @@ exports.getBranchByBranchId = (function(branchId,req, res) {
 });
 
 exports.updateBranch = (function(branchId, branchName, branchAddress, req, res) {
-    console.log(branchAddress);
+    
     libraryBranchDao.updateLibraryBranch(branchId, branchName, branchAddress, function (error, result) {
         if (error) {
             res.status(400);
@@ -57,8 +57,8 @@ exports.getBookCopy = (function(branchId, bookId, req, res) {
         });
 });
 
-exports.updateBookCopyCount = (function(req, res) {
-    bookCopiesDao.updateNoOfBookCopies(bookCopy, branchId, bookId, function (error, result) {
+exports.updateBookCopyCount = (function(bookCopyNum, branchId, bookId,req, res) {
+    bookCopiesDao.updateNoOfBookCopies(bookCopyNum, branchId, bookId, function (error, result) {
         if (error) {
             res.status(400);
             res.send('Update nunber of Book Copies Failed!');

@@ -16,8 +16,8 @@ exports.getBookCopiesById = function (branchId, bookId) {
     });;
 };
 
-exports.updateNoOfBookCopies = function (bookCopy, branchId, bookId, cb) {
-    db.query('update library.tbl_book_copies set noOfCopies = ? where branchId = ? and bookId = ?', [bookCopy.noOfCopies, branchId, bookId], function (err, result) {
+exports.updateNoOfBookCopies = function (bookCopyNum, branchId, bookId, cb) {
+    db.query('update library.tbl_book_copies set noOfCopies = ? where branchId = ? and bookId = ?', [bookCopyNum, branchId, bookId], function (err, result) {
         cb(err, result);
     });
 };
