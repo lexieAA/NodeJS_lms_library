@@ -12,6 +12,7 @@ exports.getBranches = (function (req, res) {
                 res.setHeader('Content-Type', 'text/xml');
                 var builder = new xml2js.Builder();
                 var xml = builder.buildObject(result);
+                res.status(200);
                 res.send(xml);
             } else {
                 res.send(406);
@@ -27,12 +28,14 @@ exports.getBranchByBranchId = (function(branchId,req, res) {
         .then(function (result) {
             if (req.accepts('json') || req.accepts('text/html')) {
                 res.setHeader('Content-Type', 'application/json');
+                res.status(200);
                 res.send(result);
             } else if (req.accepts('application/xml')) {
                 let body = result[0];
                 res.setHeader('Content-Type', 'text/xml');
                 var builder = new xml2js.Builder();
                 var xml = builder.buildObject(body);
+                res.status(200);
                 res.send(xml);
             } else {
                 res.send(406);
@@ -59,11 +62,13 @@ exports.getBookCopies = (function(branchId, req, res) {
         .then(function (result) {
             if (req.accepts('json') || req.accepts('text/html')) {
                 res.setHeader('Content-Type', 'application/json');
+                res.status(200);
                 res.send(result);
             } else if (req.accepts('application/xml')) {
                 res.setHeader('Content-Type', 'text/xml');
                 var builder = new xml2js.Builder();
                 var xml = builder.buildObject(result);
+                res.status(200);
                 res.send(xml);
             } else {
                 res.send(406);
@@ -79,11 +84,13 @@ exports.getBookCopy = (function(branchId, bookId, req, res) {
         .then(function (result) {
             if (req.accepts('json') || req.accepts('text/html')) {
                 res.setHeader('Content-Type', 'application/json');
+                res.status(200);
                 res.send(result);
             } else if (req.accepts('application/xml')) {
                 res.setHeader('Content-Type', 'text/xml');
                 var builder = new xml2js.Builder();
                 var xml = builder.buildObject(result[0]);
+                res.status(200);
                 res.send(xml);
             } else {
                 res.send(406);
