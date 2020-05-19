@@ -7,6 +7,7 @@ exports.getBranches = (function (req, res) {
         .then(function (result) {
             if (req.accepts('json') || req.accepts('text/html')) {
                 res.setHeader('Content-Type', 'application/json');
+                res.status(200);
                 res.send(result);
             } else if (req.accepts('application/xml')) {
                 res.setHeader('Content-Type', 'text/xml');
