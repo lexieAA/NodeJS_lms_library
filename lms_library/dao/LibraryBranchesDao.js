@@ -17,7 +17,7 @@ exports.getLibraryBranchById = function (branchId) {
 };
 
 exports.updateLibraryBranch = function (branchId, branchName, branchAddress,cb) {
-  db.query('update library.tbl_library_branch set branchName = ? and branchAddress = ? where branchId = ?', [branchName, branchAddress, branchId], function (err, result) {
+  db.query('update library.tbl_library_branch set branchName = ?, branchAddress = ? where branchId = ?', [branchName, branchAddress, branchId], function (err, result) {
     cb(err, result);
   });
 };
