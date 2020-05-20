@@ -1,4 +1,4 @@
-var db = require('./db');
+let db = require('./db');
 
 exports.getAllLibraryBranches = function () {
   return new Promise(function (resolve, reject) {
