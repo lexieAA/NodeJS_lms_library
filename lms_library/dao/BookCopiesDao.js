@@ -17,7 +17,21 @@ exports.getBookCopiesById = function (branchId, bookId) {
 };
 
 exports.updateNoOfBookCopies = function (bookCopyNum, branchId, bookId, cb) {
-    db.query('update library.tbl_book_copies set noOfCopies = ? where branchId = ? and bookId = ?', [bookCopyNum, branchId, bookId], function (err, result) {
-        cb(err, result);
-    });
+    db.beginTransaction(function(err){
+        if(err) cb(err, null);
+
+    db.query('update library.tbl_book_copies set noOfCopies = ? where branchId = ? and bookId = ?', [bookCopyNum, branchId, bookId], function (err, res) {
+        if(err){
+            db.rollback(function(err, res){
+                console.log("rollerback");
+              cb(err, res);
+            });
+          } 
+          db.commit(function(err, res){
+            console.log("commit");
+            console.log(res);
+            cb(err, res);
+          });
+        });
+      });
 };

@@ -16,8 +16,10 @@ exports.getLibraryBranchById = function (branchId) {
   });;
 };
 
-exports.updateLibraryBranch = function (branchId, branchName, branchAddress,cb) {
+exports.updateLibraryBranch = function (branchId, branchName, branchAddress) {
+  return new Promise(function (resolve, reject) {
   db.query('update library.tbl_library_branch set branchName = ?, branchAddress = ? where branchId = ?', [branchName, branchAddress, branchId], function (err, result) {
-    cb(err, result);
-  });
+    return err ? reject(err) : resolve(result);
+    });
+  });;
 };

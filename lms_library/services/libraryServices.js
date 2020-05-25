@@ -2,129 +2,75 @@ var bookCopiesDao = require('../dao/bookCopiesDao');
 var libraryBranchDao = require('../dao/libraryBranchesDao');
 var xml2js = require('xml2js');
 
-exports.getBranches = (function (req, res) {
-    libraryBranchDao.getAllLibraryBranches()
+exports.getBranches = (async function (req, res) {
+    try{
+        let result = await libraryBranchDao.getAllLibraryBranches();
+        res.querySuccess = true;
+        res.queryResults = result;
+    } catch (err) {
+        res.querySuccess = false;
+    }
+});
+
+exports.getBranchByBranchId = (async function (branchId, req, res) {
+    try{
+        let result = await libraryBranchDao.getLibraryBranchById(branchId);
+        res.querySuccess = true;
+        res.queryResults = result;
+    } catch (err) {
+        res.querySuccess = false;
+    }
+});
+
+exports.updateBranch = (async function (branchId, branchName, branchAddress, req, res) {
+    await libraryBranchDao.updateLibraryBranch(branchId, branchName, branchAddress)
         .then(function (result) {
-            if (req.accepts('json') || req.accepts('text/html')) {
-                res.setHeader('Content-Type', 'application/json');
-                res.status(200);
-                res.send(result);
-            } else if (req.accepts('application/xml')) {
-                res.setHeader('Content-Type', 'text/xml');
-                var builder = new xml2js.Builder();
-                var xml = builder.buildObject(result);
-                res.status(200);
-                res.send(xml);
-            } else {
-                res.send(406);
-            }
+            res.retCode = result.affectedRows;
         })
         .catch(function (err) {
-            res.send(400);
+            res.retCode = 0;
         });
 });
 
-exports.getBranchByBranchId = (function(branchId,req, res) {
-    libraryBranchDao.getLibraryBranchById(branchId)
+exports.getBookCopies = (async function (branchId, req, res) {
+    await bookCopiesDao.getBookCopiesByBranchId(branchId)
         .then(function (result) {
-            if (result.length == 0) {
-                res.status(404);
-                res.send("No match found");
-            } else {
-                if (req.accepts('json') || req.accepts('text/html')) {
-                    res.setHeader('Content-Type', 'application/json');
-                    res.status(200);
-                    res.send(result);
-                } else if (req.accepts('application/xml')) {
-                    let body = result[0];
-                    res.setHeader('Content-Type', 'text/xml');
-                    var builder = new xml2js.Builder();
-                    var xml = builder.buildObject(body);
-                    res.status(200);
-                    res.send(xml);
-                } else {
-                    res.send(406);
-                }
+            if(result.length == 0){
+                res.retCode = 0; 
+            }else{
+                res.retCode = 1;
+                res.queryResults = result;
             }
         })
         .catch(function (err) {
-            res.send(400);
+            res.retCode = 0;
         });
 });
 
-exports.updateBranch = (function(branchId, branchName, branchAddress, req, res) {
-    libraryBranchDao.updateLibraryBranch(branchId, branchName, branchAddress, function (error, result) {
-        if (error) {
-            res.status(400);
-            res.send('Update Library Branch Failed!');
+
+exports.getBookCopy = (async function (branchId, bookId, req, res) {
+    await bookCopiesDao.getBookCopiesById(branchId, bookId)
+        .then(function (result) {
+            if(result.length() == 0){
+                res.retCode = 0; 
+            }else{
+                res.retCode = 1;
+                res.queryResults = result;
+            }
+        })
+        .catch(function (err) {
+            res.retCode = 0;
+        });
+});             
+
+exports.updateBookCopyCount = (function (bookCopyNum, branchId, bookId, req, res) {
+    bookCopiesDao.updateNoOfBookCopies(bookCopyNum, branchId, bookId,function(err, result){
+        if(err){
+          //res.status(400);
+          res.send('Delete Book Failed!');
+          console.log(result + "from ser error");
         }
-        res.status(201);
-        res.send('Update Library Branch Successful!');
+        res.send('Delete Book Successful!');
+        console.log(result.changedRows + "from ser");
+      });
     });
-});
-
-exports.getBookCopies = (function(branchId, req, res) {
-    bookCopiesDao.getBookCopiesByBranchId(branchId)
-        .then(function (result) {
-            if (result.length == 0) {
-                res.status(404);
-                res.send("No match found");
-            } else {
-
-                if (req.accepts('json') || req.accepts('text/html')) {
-                    res.setHeader('Content-Type', 'application/json');
-                    res.status(200);
-                    res.send(result);
-                } else if (req.accepts('application/xml')) {
-                    res.setHeader('Content-Type', 'text/xml');
-                    var builder = new xml2js.Builder();
-                    var xml = builder.buildObject(result);
-                    res.status(200);
-                    res.send(xml);
-                } else {
-                    res.send(406);
-                }
-            }
-        })
-        .catch(function (err) {
-            res.send(400);
-        });
-});
-
-exports.getBookCopy = (function(branchId, bookId, req, res) {
-    bookCopiesDao.getBookCopiesById(branchId, bookId)
-        .then(function (result) {
-            if (result.length == 0) {
-                res.status(404);
-                res.send("No match found");
-            } else {
-                if (req.accepts('json') || req.accepts('text/html')) {
-                    res.setHeader('Content-Type', 'application/json');
-                    res.status(200);
-                    res.send(result);
-                } else if (req.accepts('application/xml')) {
-                    res.setHeader('Content-Type', 'text/xml');
-                    var builder = new xml2js.Builder();
-                    var xml = builder.buildObject(result[0]);
-                    res.status(200);
-                    res.send(xml);
-                } else {
-                    res.send(406);
-                }
-            }
-        })
-        .catch(function (err) {
-            res.send(400);
-        });
-});
-
-exports.updateBookCopyCount = (function(bookCopyNum, branchId, bookId,req, res) {
-    bookCopiesDao.updateNoOfBookCopies(bookCopyNum, branchId, bookId, function (error, result) {
-        if (error) {
-            res.status(400);
-            res.send('Update nunber of Book Copies Failed!');
-        }
-        res.status(201);
-        res.send('Update nunber of Book Copies Successful!');
-    });
-});
