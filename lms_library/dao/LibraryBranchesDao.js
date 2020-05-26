@@ -1,25 +1,16 @@
-let db = require('./db');
+const db = require("./db").getDb();
 
-exports.getAllLibraryBranches = function () {
-  return new Promise(function (resolve, reject) {
-    db.query('select * from library.tbl_library_branch', function (err, result) {
-      return err ? reject(err) : resolve(result);
-    });
-  });;
+exports.getAllLibraryBranches = async () =>{
+  let branches = await db.query('select * from library.tbl_library_branch');
+      return branches;
 };
 
-exports.getLibraryBranchById = function (branchId) {
-  return new Promise(function (resolve, reject) {
-    db.query('select * from library.tbl_library_branch where branchId = ?', [branchId], function (err, result) {
-      return err ? reject(err) : resolve(result);
-    });
-  });;
+exports.getLibraryBranchById = async (branchId) =>{
+  let branch = await db.query('select * from library.tbl_library_branch where branchId = ?', [branchId]);
+      return branch;
 };
 
-exports.updateLibraryBranch = function (branchId, branchName, branchAddress) {
-  return new Promise(function (resolve, reject) {
-  db.query('update library.tbl_library_branch set branchName = ?, branchAddress = ? where branchId = ?', [branchName, branchAddress, branchId], function (err, result) {
-    return err ? reject(err) : resolve(result);
-    });
-  });;
+exports.updateLibraryBranch = async (branchId, branchName, branchAddress) =>{
+  let update = await db.query('update library.tbl_library_branch set branchName = ?, branchAddress = ? where branchId = ?', [branchName, branchAddress, branchId]);
+    return update;
 };

@@ -3,7 +3,7 @@ const bodyParse = require('body-parser');
 let express = require('express'),
     bodyParser = require('body-parser'),
     app = express();
-
+let xml2js = require('xml2js');
 const xmlparser = require('express-xml-bodyparser');
 routes.use(xmlparser());
 routes.use(bodyParse.json());
@@ -14,9 +14,7 @@ routes.use(cors());
 
 routes.get('/lms/library/branches', async (req, res) => {
     await libraryService.getBranches(req, res);
-
     if (res.querySuccess) {
-
         if (req.accepts('json') || req.accepts('text/html')) {
             res.setHeader('Content-Type', 'application/json');
             res.status(200);
@@ -47,7 +45,7 @@ routes.get('/lms/library/branches/branch/:branchId', async (req, res)  => {
         } else if (req.accepts('application/xml')) {
             res.setHeader('Content-Type', 'text/xml');
             let builder = new xml2js.Builder();
-            let xml = builder.buildObject(res.queryResults);
+            let xml = builder.buildObject(res.queryResults[0]);
             res.send(xml);
             res.status(200);
         } else {
@@ -74,7 +72,7 @@ routes.put('/lms/library/branches/branch/:branchId',  async (req, res) =>{
 
     } if (req.is('application/xml') == 'application/xml' || req.is('application/json') == 'application/json') {
         await libraryService.updateBranch(req.params.branchId, branchName, branchAddress, req, res);
-            if (res.retCode == 1) {
+        if (res.querySuccess) {
             res.status(201);
             res.send('Update Library Branch Successful!');
             } else{
@@ -91,7 +89,7 @@ routes.put('/lms/library/branches/branch/:branchId',  async (req, res) =>{
 
 routes.get('/lms/library/branches/branch/:branchId/bookCopies', async (req, res) =>{
     await libraryService.getBookCopies(req.params.branchId, req, res);
-    if (res.retCode == 1) {
+    if (res.querySuccess) {
         
         if (req.accepts('json') || req.accepts('text/html')) {
             res.setHeader('Content-Type', 'application/json');
@@ -112,8 +110,8 @@ routes.get('/lms/library/branches/branch/:branchId/bookCopies', async (req, res)
 });
 
 routes.get('/lms/library/branches/branch/:branchId/bookCopies/book/:bookId', async (req, res) => {
-    await libraryService.getBookCopy(req.params.branchId, req.params.bookId, req, res);
-    if (res.retCode == 1) {
+    await libraryService.getBookCopy(req.params.branchId, req.params.bookId, req, res)
+    if (res.querySuccess) {
         
         if (req.accepts('json') || req.accepts('text/html')) {
             res.setHeader('Content-Type', 'application/json');
@@ -122,7 +120,7 @@ routes.get('/lms/library/branches/branch/:branchId/bookCopies/book/:bookId', asy
         } else if (req.accepts('application/xml')) {
             res.setHeader('Content-Type', 'text/xml');
             let builder = new xml2js.Builder();
-            let xml = builder.buildObject(res.queryResults);
+            let xml = builder.buildObject(res.queryResults[0]);
             res.send(xml);
             res.status(200);
         } else {
@@ -133,7 +131,7 @@ routes.get('/lms/library/branches/branch/:branchId/bookCopies/book/:bookId', asy
     }
 });
 
-routes.put('/lms/library/branches/branch/:branchId/bookCopies/book/:bookId',  function (req, res){
+routes.put('/lms/library/branches/branch/:branchId/bookCopies/book/:bookId',  async (req, res) =>{
     let body;
     let bookCopyNum;
     if (req.is('application/json') == 'application/json') {
@@ -144,20 +142,20 @@ routes.put('/lms/library/branches/branch/:branchId/bookCopies/book/:bookId',  fu
         body = req.body.root;
         bookCopyNum = body.noofcopies[0];
     } if (req.is('application/xml') == 'application/xml' || req.is('application/json') == 'application/json') {
-        libraryService.updateBookCopyCount(bookCopyNum, req.params.branchId, req.params.bookId, req, res);
-        
-            // if (res.queryResults == 1) {
-            // res.status(201);
-            // res.send('Update nunber of Book Copies Successful!');
-            // } else{
-            //     res.status(404);
-            //     console.log(res.finished);
-            //     res.send('Update nunber of Book Copies Failed!');
-            // }
+        await libraryService.updateBookCopyCount(bookCopyNum, req.params.branchId, req.params.bookId, req, res);
+        if (res.querySuccess) {
+            res.status(201);
+            res.send('Update Book Copy Successful!');
+            } else{
+                res.status(404);
+                res.send('Update Book Copy Failed!');
+            }
+    } 
     // content negotiation failure
-     } else {
-        res.send(406);
+    else {
+        res.sendStatus(406);
     }
+    
 });
 
 module.exports = routes;

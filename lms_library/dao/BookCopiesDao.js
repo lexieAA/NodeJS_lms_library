@@ -1,37 +1,16 @@
-let db = require('./db');
+const db = require("./db").getDb();
 
-exports.getBookCopiesByBranchId = function (branchId) {
-    return new Promise(function (resolve, reject) {
-        db.query('select * from library.tbl_book_copies where branchId = ?', [branchId], function (err, result) {
-            return err ? reject(err) : resolve(result);
-        });
-    });;
+exports.getBookCopiesByBranchId = async (branchId) =>{
+    let copy = await db.query('select * from library.tbl_book_copies where branchId = ?', [branchId]);
+    return copy; 
 };
 
-exports.getBookCopiesById = function (branchId, bookId) {
-    return new Promise(function (resolve, reject) {
-        db.query('SELECT tb.bookId AS bookId, tb.title AS title, tbc.branchId As branchId, tlb.branchName As branchName,tbc.noOfCopies As noOfCopies FROM tbl_book_copies  As tbc INNER JOIN tbl_book AS tb on tbc.bookId = tb.bookId INNER JOiN tbl_library_branch AS tlb ON tbc.branchId = tlb.branchId WHERE tlb.branchId = ? AND tbc.bookId = ?', [branchId, bookId], function (err, result) {
-            return err ? reject(err) : resolve(result);
-        });
-    });;
+exports.getBookCopiesById = async (branchId, bookId) => {
+    let copy = await db.query('SELECT tb.bookId AS bookId, tb.title AS title, tbc.branchId As branchId, tlb.branchName As branchName,tbc.noOfCopies As noOfCopies FROM tbl_book_copies  As tbc INNER JOIN tbl_book AS tb on tbc.bookId = tb.bookId INNER JOiN tbl_library_branch AS tlb ON tbc.branchId = tlb.branchId WHERE tlb.branchId = ? AND tbc.bookId = ?', [branchId, bookId]);
+    return copy;     
 };
 
-exports.updateNoOfBookCopies = function (bookCopyNum, branchId, bookId, cb) {
-    db.beginTransaction(function(err){
-        if(err) cb(err, null);
-
-    db.query('update library.tbl_book_copies set noOfCopies = ? where branchId = ? and bookId = ?', [bookCopyNum, branchId, bookId], function (err, res) {
-        if(err){
-            db.rollback(function(err, res){
-                console.log("rollerback");
-              cb(err, res);
-            });
-          } 
-          db.commit(function(err, res){
-            console.log("commit");
-            console.log(res);
-            cb(err, res);
-          });
-        });
-      });
+exports.updateNoOfBookCopies = async (bookCopyNum, branchId, bookId) =>{
+   let update = await db.query('update library.tbl_book_copies set noOfCopies = ? where branchId = ? and bookId = ?', [bookCopyNum, branchId, bookId]);
+   return update
 };

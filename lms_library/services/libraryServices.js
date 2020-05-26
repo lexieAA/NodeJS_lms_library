@@ -1,6 +1,7 @@
-var bookCopiesDao = require('../dao/bookCopiesDao');
-var libraryBranchDao = require('../dao/libraryBranchesDao');
-var xml2js = require('xml2js');
+let bookCopiesDao = require('../dao/bookCopiesDao');
+let libraryBranchDao = require('../dao/libraryBranchesDao');
+let xml2js = require('xml2js');
+const db = require("../dao/db").getDb();
 
 exports.getBranches = (async function (req, res) {
     try{
@@ -23,27 +24,42 @@ exports.getBranchByBranchId = (async function (branchId, req, res) {
 });
 
 exports.updateBranch = (async function (branchId, branchName, branchAddress, req, res) {
+    await db.beginTransaction();
     await libraryBranchDao.updateLibraryBranch(branchId, branchName, branchAddress)
         .then(function (result) {
-            res.retCode = result.affectedRows;
+            if(result.affectedRows == 0){
+                res.querySuccess = false;
+                console.log(result);
+                console.log("in if");
+            }else{
+                res.querySuccess = true;
+                res.queryResults = result;
+                console.log(result);
+                console.log("in else");
+            }
         })
         .catch(function (err) {
-            res.retCode = 0;
+            res.querySuccess = false;
         });
+    if(res.querySuccess){
+        await db.commit();
+    }else{
+        await db.rollback();
+    }
 });
 
 exports.getBookCopies = (async function (branchId, req, res) {
     await bookCopiesDao.getBookCopiesByBranchId(branchId)
         .then(function (result) {
             if(result.length == 0){
-                res.retCode = 0; 
+                res.querySuccess = false;
             }else{
-                res.retCode = 1;
+                res.querySuccess = true;
                 res.queryResults = result;
             }
         })
         .catch(function (err) {
-            res.retCode = 0;
+            res.querySuccess = false;
         });
 });
 
@@ -51,26 +67,35 @@ exports.getBookCopies = (async function (branchId, req, res) {
 exports.getBookCopy = (async function (branchId, bookId, req, res) {
     await bookCopiesDao.getBookCopiesById(branchId, bookId)
         .then(function (result) {
-            if(result.length() == 0){
-                res.retCode = 0; 
+            if(result.length == 0){
+                res.querySuccess = false;
             }else{
-                res.retCode = 1;
+                res.querySuccess = true;
                 res.queryResults = result;
             }
         })
         .catch(function (err) {
-            res.retCode = 0;
+            res.querySuccess = false;
         });
 });             
 
-exports.updateBookCopyCount = (function (bookCopyNum, branchId, bookId, req, res) {
-    bookCopiesDao.updateNoOfBookCopies(bookCopyNum, branchId, bookId,function(err, result){
-        if(err){
-          //res.status(400);
-          res.send('Delete Book Failed!');
-          console.log(result + "from ser error");
-        }
-        res.send('Delete Book Successful!');
-        console.log(result.changedRows + "from ser");
-      });
-    });
+exports.updateBookCopyCount = (async function (bookCopyNum, branchId, bookId, req, res) {
+    await db.beginTransaction();
+    await bookCopiesDao.updateNoOfBookCopies(bookCopyNum, branchId, bookId)
+        .then(function (result) {
+            if(result.affectedRows == 0){
+                res.querySuccess = false;
+            }else{
+                res.querySuccess = true;
+                res.queryResults = result;
+            }
+        })
+        .catch(function (err) {
+            res.querySuccess = false;
+        });
+    if(res.querySuccess){
+        await db.commit();
+    }else{
+        await db.rollback();
+    }
+});
