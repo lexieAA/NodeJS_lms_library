@@ -1,15 +1,40 @@
-let mysql = require('mysql');
+const mysql = require("mysql");
 
-let connection = mysql.createConnection({
-    host     : '127.0.0.1',
-    user     : 'root',
-    password : 'arh26331',
-    database : 'library'
-});
-
-connection.connect(function(err) {
-    if (err) throw err;
-    console.log("Connected!");
+exports.getDb = () => {
+  const conn = mysql.createConnection({
+    host: "127.0.0.1",
+    user: "root",
+    password: "arh26331",
+    database: "library",
   });
-
-module.exports = connection;
+  return {
+    query(sql, args) {
+      return new Promise((resolve, reject) => {
+        conn.query(sql, args, (error, result) =>
+          error ? reject(error) : resolve(result)
+        );
+      });
+    },
+    beginTransaction() {
+      return new Promise((resolve, reject) => {
+        conn.beginTransaction((error) =>
+          error ? reject(error) : resolve("transaction begun.")
+        );
+      });
+    },
+    rollback() {
+      return new Promise((resolve, reject) => {
+        conn.rollback((error) =>
+          error ? reject(error) : resolve("rollback successful.")
+        );
+      });
+    },
+    commit() {
+      return new Promise((resolve, reject) => {
+        conn.commit((error) =>
+          error ? reject(error) : resolve("commit successful.")
+        );
+      });
+    },
+  };
+};
