@@ -6,7 +6,7 @@ exports.getAllBookCopies = async () =>{
 };
 
 exports.getAllBookCopiesLike = async (title) =>{
-    let copy = await db.query("SELECT tb.bookId AS bookId, tb.title AS title, tbc.branchId As branchId, tlb.branchName As branchName, tbc.noOfCopies As noOfCopies FROM tbl_library_branch AS tlb INNER JOIN tbl_book_copies As tbc ON tbc.branchId = tlb.branchId INNER JOiN tbl_book AS tb ON tb.bookId = tbc.bookId WHERE tb.title like ?", [title+'%']);
+    let copy = await db.query("SELECT tb.bookId AS bookId, tb.title AS title, tbc.branchId As branchId, tlb.branchName As branchName, tbc.noOfCopies As noOfCopies FROM tbl_library_branch AS tlb INNER JOIN tbl_book_copies As tbc ON tbc.branchId = tlb.branchId INNER JOiN tbl_book AS tb ON tb.bookId = tbc.bookId WHERE tb.title like ?", ['%' + title+'%']);
     return copy; 
 }
 

@@ -32,6 +32,27 @@ routes.get('/lms/library/branches', async (req, res) => {
         res.sendStatus(404);
     }
 });
+
+routes.get('/lms/library/branches/like/:branchName', async (req, res) => {
+    await libraryService.getBranchesLikes(req.params.branchName, req, res);
+    if (res.querySuccess) {
+        if (req.accepts('json') || req.accepts('text/html')) {
+            res.setHeader('Content-Type', 'application/json');
+            res.status(200);
+            res.send(res.queryResults);
+        } else if (req.accepts('application/xml')) {
+            res.setHeader('Content-Type', 'text/xml');
+            let builder = new xml2js.Builder();
+            let xml = builder.buildObject(res.queryResults);
+            res.send(xml);
+            res.status(200);
+        } else {
+            res.sendStatus(406);
+        }
+    } else{
+        res.sendStatus(404);
+    }
+});
             
 
 routes.get('/lms/library/branches/branch/:branchId', async (req, res)  => {
@@ -117,7 +138,7 @@ routes.put('/lms/library/branches/branch',  async (req, res) =>{
     }
     
 });
-
+//-------------------------- bookCopies pathes---------------------------------------------------------------------
 routes.get('/lms/library/bookcopies', async (req, res) => {
     await libraryService.getAllBookCopies(req, res);
     if (res.querySuccess) {
