@@ -16,14 +16,8 @@ exports.getBranches = (async function (req, res) {
 exports.getBranchesLikes = (async function (branchName, req, res) {
     await libraryBranchDao.getBranchesLikes(branchName)
         .then(function (result) {
-            if(result.length == 0){
-                res.querySuccess = false;
-                //console.log(res);
-            }else{
-                res.querySuccess = true;
-                res.queryResults = result;
-                //console.log(res);
-            }
+            res.querySuccess = true;
+            res.queryResults = result;
         })
         .catch(function (err) {
             res.querySuccess = false;
@@ -93,13 +87,9 @@ exports.getBookCopies = (async function (branchId, req, res) {
 
 exports.getBookCopiesLikes = (async function (title, req, res) {
     await bookCopiesDao.getAllBookCopiesLike(title)
-        .then(function (result) {
-            if(result.length == 0){
-                res.querySuccess = false;
-            }else{
-                res.querySuccess = true;
-                res.queryResults = result;
-            }
+         .then(function (result) {
+            res.querySuccess = true;
+            res.queryResults = result;
         })
         .catch(function (err) {
             res.querySuccess = false;
