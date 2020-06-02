@@ -1,12 +1,12 @@
 const db = require("./db").getDb();
 
 exports.getAllLibraryBranches = async () =>{
-  let branches = await db.query('select * from library.tbl_library_branch');
+  let branches = await db.query('select * from library.tbl_library_branch order by branchName');
       return branches;
 };
 
 exports.getBranchesLikes = async (branchName) =>{
-  let branches = await db.query('select * from library.tbl_library_branch where branchName like ?',['%' + branchName +'%']);
+  let branches = await db.query('select * from library.tbl_library_branch where branchName like ? order by branchName',['%' + branchName +'%']);
       return branches;
 };
 
