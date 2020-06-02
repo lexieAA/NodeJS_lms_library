@@ -33,6 +33,48 @@ routes.get('/lms/library/branches', async (req, res) => {
     }
 });
 
+routes.get('/lms/library/books', async (req, res) => {
+    await libraryService.getBooks(req, res);
+    if (res.querySuccess) {
+        if (req.accepts('json') || req.accepts('text/html')) {
+            res.setHeader('Content-Type', 'application/json');
+            res.status(200);
+            res.send(res.queryResults);
+        } else if (req.accepts('application/xml')) {
+            res.setHeader('Content-Type', 'text/xml');
+            let builder = new xml2js.Builder();
+            let xml = builder.buildObject(res.queryResults);
+            res.send(xml);
+            res.status(200);
+        } else {
+            res.sendStatus(406);
+        }
+    } else{
+        res.sendStatus(404);
+    }
+});
+
+routes.get('/lms/library/books/:branchId', async (req, res) => {
+    await libraryService.getBookCopiesWhereNotId(req.params.branchId, req, res);
+    if (res.querySuccess) {
+        if (req.accepts('json') || req.accepts('text/html')) {
+            res.setHeader('Content-Type', 'application/json');
+            res.status(200);
+            res.send(res.queryResults);
+        } else if (req.accepts('application/xml')) {
+            res.setHeader('Content-Type', 'text/xml');
+            let builder = new xml2js.Builder();
+            let xml = builder.buildObject(res.queryResults);
+            res.send(xml);
+            res.status(200);
+        } else {
+            res.sendStatus(406);
+        }
+    } else{
+        res.sendStatus(404);
+    }
+});
+
 routes.get('/lms/library/branches/like/:branchName', async (req, res) => {
     await libraryService.getBranchesLikes(req.params.branchName, req, res);
     if (res.querySuccess) {
@@ -270,6 +312,37 @@ routes.put('/lms/library/bookcopies',  async (req, res) =>{
         bookCopyNum = body.noofcopies[0];
     } if (req.is('application/xml') == 'application/xml' || req.is('application/json') == 'application/json') {
         await libraryService.updateBookCopyCount(bookCopyNum, branchId, bookId, req, res);
+        if (res.querySuccess) {
+            res.send();
+            } else{
+                res.sendStatus(404);
+            }
+    } 
+    // content negotiation failure
+    else {
+        res.sendStatus(406);
+    }
+    
+});
+
+routes.post('/lms/library/bookcopies',  async (req, res) =>{
+    let body;
+    let branchId;
+    let bookId;
+    let bookCopyNum;
+    if (req.is('application/json') == 'application/json') {
+        body = req.body;
+        branchId = body.branchId;
+        bookId = body.bookId;
+        bookCopyNum = body.noOfCopies;
+
+    } else if (req.is('application/xml') == 'application/xml') {
+        body = req.body.root;
+        branchId = body.branchid[0];
+        bookId = body.bookd[0];
+        bookCopyNum = body.noofcopies[0];
+    } if (req.is('application/xml') == 'application/xml' || req.is('application/json') == 'application/json') {
+        await libraryService.postBookCopies(bookCopyNum, branchId, bookId, req, res);
         if (res.querySuccess) {
             res.send();
             } else{

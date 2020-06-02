@@ -1,4 +1,5 @@
 let bookCopiesDao = require('../dao/bookCopiesDao');
+let booksDao = require('../dao/booksDao');
 let libraryBranchDao = require('../dao/libraryBranchesDao');
 let xml2js = require('xml2js');
 const db = require("../dao/db").getDb();
@@ -6,6 +7,16 @@ const db = require("../dao/db").getDb();
 exports.getBranches = (async function (req, res) {
     try{
         let result = await libraryBranchDao.getAllLibraryBranches();
+        res.querySuccess = true;
+        res.queryResults = result;
+    } catch (err) {
+        res.querySuccess = false;
+    }
+});
+
+exports.getBooks = (async function (req, res) {
+    try{
+        let result = await booksDao.getAllBooks();
         res.querySuccess = true;
         res.queryResults = result;
     } catch (err) {
@@ -36,18 +47,13 @@ exports.getBranchByBranchId = (async function (branchId, req, res) {
 
 exports.updateBranch = (async function (branchId, branchName, branchAddress, req, res) {
     await db.beginTransaction();
-    console.log(branchAddress +branchId+branchName);
     await libraryBranchDao.updateLibraryBranch(branchId, branchName, branchAddress)
         .then(function (result) {
             if(result.affectedRows == 0){
                 res.querySuccess = false;
-                console.log(result);
-                console.log("in if");
             }else{
                 res.querySuccess = true;
                 res.queryResults = result;
-                console.log(result);
-                console.log("in else");
             }
         })
         .catch(function (err) {
@@ -72,6 +78,21 @@ exports.getAllBookCopies = (async function (req, res) {
 
 exports.getBookCopies = (async function (branchId, req, res) {
     await bookCopiesDao.getBookCopiesByBranchId(branchId)
+        .then(function (result) {
+            if(result.length == 0){
+                res.querySuccess = false;
+            }else{
+                res.querySuccess = true;
+                res.queryResults = result;
+            }
+        })
+        .catch(function (err) {
+            res.querySuccess = false;
+        });
+});
+
+exports.getBookCopiesWhereNotId = (async function (branchId, req, res) {
+    await bookCopiesDao.getBookCopiesWhereNotId(branchId)
         .then(function (result) {
             if(result.length == 0){
                 res.querySuccess = false;
@@ -115,6 +136,27 @@ exports.getBookCopy = (async function (branchId, bookId, req, res) {
 exports.updateBookCopyCount = (async function (bookCopyNum, branchId, bookId, req, res) {
     await db.beginTransaction();
     await bookCopiesDao.updateNoOfBookCopies(bookCopyNum, branchId, bookId)
+        .then(function (result) {
+            if(result.affectedRows == 0){
+                res.querySuccess = false;
+            }else{
+                res.querySuccess = true;
+                res.queryResults = result;
+            }
+        })
+        .catch(function (err) {
+            res.querySuccess = false;
+        });
+    if(res.querySuccess){
+        await db.commit();
+    }else{
+        await db.rollback();
+    }
+});
+
+exports.postBookCopies = (async function (bookCopyNum, branchId, bookId, req, res) {
+    await db.beginTransaction();
+    await bookCopiesDao.postBookCopies(bookCopyNum, branchId, bookId)
         .then(function (result) {
             if(result.affectedRows == 0){
                 res.querySuccess = false;
