@@ -4,7 +4,7 @@ exports.getDb = () => {
   const conn = mysql.createConnection({
     host: "127.0.0.1",
     user: "root",
-    password: "arh26331",
+    password: "root",
     database: "library",
   });
   return {
